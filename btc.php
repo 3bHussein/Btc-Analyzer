@@ -1,151 +1,123 @@
 <?php
 /**
- * btc_analyzer.php — محلل بتكوين تحليلي شامل عبر سطر الأوامر + رسوم بيانية (سعر + SMA + RSI + MACD)
- *
- * الاستخدام:
- *   php btc_analyzer.php [interval] [limit]
- *
- * يتطلب:
- * - PHP 8+
- * - امتداد cURL
- * - مكتبة jpgraph (https://jpgraph.net/download/) مثبّتة في مجلد jpgraph/
+ * btc_dashboard.php — نسخة Dashboard تعرض البيانات التحليلية مع واجهة ويب جميلة
  */
 
-ini_set('memory_limit', '1024M');
-declare(strict_types=1);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
 
-const SYMBOL     = 'BTCUSDT';
-const BASE_URL   = 'https://api.binance.com';
-const RISK_FREE  = 0.0;
+define('SYMBOL', 'BTCUSDT');
+define('BASE_URL', 'https://api.binance.com');
 
-// ====== (الدوال الحسابية والمؤشرات كما في النسخة السابقة) ======
-// ... [الكود الأصلي للمؤشرات والملخص كما هو] ...
+function fetch_klines(string $symbol, string $interval, int $limit): array {
+    if (!function_exists('curl_init')) {
+        throw new Exception('cURL غير مثبت على السيرفر');
+    }
+    $url = BASE_URL . "/api/v3/klines?symbol={$symbol}&interval={$interval}&limit={$limit}";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $resp = curl_exec($ch);
+    if ($resp === false) {
+        throw new Exception('cURL Error: ' . curl_error($ch));
+    }
+    curl_close($ch);
 
-// ===== رسم بياني باستخدام JpGraph =====
-function plot_chart(array $time, array $close, array $sma20, array $sma50, array $sma200, array $rsi, array $macd, array $signal, array $hist, string $path): void {
-    require_once __DIR__ . '/jpgraph/src/jpgraph.php';
-    require_once __DIR__ . '/jpgraph/src/jpgraph_line.php';
-    require_once __DIR__ . '/jpgraph/src/jpgraph_bar.php';
+    $data = json_decode($resp, true);
+    if (!is_array($data)) {
+        throw new Exception('API response error');
+    }
 
-    $n = count($close);
-    $xdata = [];
-    foreach ($time as $t) $xdata[] = date('m-d', $t);
-
-    // لوحة رئيسية متعددة
-    $graph = new Graph(1000,800);
-    $graph->SetMargin(50,40,40,100);
-    $graph->SetScale('textlin');
-    $graph->title->Set('Bitcoin Price & Indicators');
-
-    $graph->xaxis->SetTickLabels($xdata);
-    $graph->xaxis->SetTextTickInterval(intdiv($n, 15));
-    $graph->xaxis->SetLabelAngle(45);
-
-    // --- القسم 1: السعر + SMA ---
-    $p1 = new LinePlot($close);
-    $p1->SetColor('black');
-    $p1->SetLegend('Close');
-
-    $p2 = new LinePlot($sma20);
-    $p2->SetColor('blue');
-    $p2->SetLegend('SMA20');
-
-    $p3 = new LinePlot($sma50);
-    $p3->SetColor('green');
-    $p3->SetLegend('SMA50');
-
-    $p4 = new LinePlot($sma200);
-    $p4->SetColor('red');
-    $p4->SetLegend('SMA200');
-
-    $graph->Add($p1);
-    $graph->Add($p2);
-    $graph->Add($p3);
-    $graph->Add($p4);
-
-    // --- القسم 2: RSI ---
-    $rsigraph = new Graph(1000,200);
-    $rsigraph->SetScale('textlin',0,100);
-    $rsigraph->xaxis->SetTickLabels($xdata);
-    $rsigraph->xaxis->SetTextTickInterval(intdiv($n, 15));
-    $rsigraph->xaxis->SetLabelAngle(45);
-    $rsigraph->title->Set('RSI(14)');
-
-    $rsiPlot = new LinePlot($rsi);
-    $rsiPlot->SetColor('purple');
-    $rsigraph->Add($rsiPlot);
-
-    // خطوط 30 و70
-    $r30 = new LinePlot(array_fill(0,$n,30));
-    $r30->SetColor('red');
-    $r30->SetStyle('dashed');
-    $rsigraph->Add($r30);
-
-    $r70 = new LinePlot(array_fill(0,$n,70));
-    $r70->SetColor('red');
-    $r70->SetStyle('dashed');
-    $rsigraph->Add($r70);
-
-    // --- القسم 3: MACD ---
-    $macdgraph = new Graph(1000,200);
-    $macdgraph->SetScale('textlin');
-    $macdgraph->xaxis->SetTickLabels($xdata);
-    $macdgraph->xaxis->SetTextTickInterval(intdiv($n, 15));
-    $macdgraph->xaxis->SetLabelAngle(45);
-    $macdgraph->title->Set('MACD 12/26/9');
-
-    $macdLine = new LinePlot($macd);
-    $macdLine->SetColor('blue');
-    $macdLine->SetLegend('MACD');
-    $macdgraph->Add($macdLine);
-
-    $signalLine = new LinePlot($signal);
-    $signalLine->SetColor('red');
-    $signalLine->SetLegend('Signal');
-    $macdgraph->Add($signalLine);
-
-    $histBar = new BarPlot($hist);
-    $histBar->SetFillColor('gray');
-    $macdgraph->Add($histBar);
-
-    // --- دمج الرسوم ---
-    $mgraph = new MGraph(1000,1200);
-    $mgraph->Add($graph,0,0);
-    $mgraph->Add($rsigraph,0,600);
-    $mgraph->Add($macdgraph,0,800);
-    $mgraph->Stroke($path);
+    $out = [];
+    foreach ($data as $row) {
+        $out[] = [
+            'time' => date('Y-m-d H:i', $row[0]/1000),
+            'open' => (float)$row[1],
+            'high' => (float)$row[2],
+            'low'  => (float)$row[3],
+            'close'=> (float)$row[4],
+            'volume'=> (float)$row[5],
+        ];
+    }
+    return $out;
 }
 
-// ===== البرنامج الرئيسي =====
+function sma(array $values, int $period): array {
+    $result = [];
+    $count = count($values);
+    for ($i=0; $i<$count; $i++) {
+        if ($i+1 < $period) $result[] = null;
+        else $result[] = array_sum(array_slice($values, $i+1-$period, $period))/$period;
+    }
+    return $result;
+}
+
 try {
-    $interval = $argv[1] ?? '1d';
-    $limit    = isset($argv[2]) ? (int)$argv[2] : 365;
+    $interval = $_GET['interval'] ?? '1d';
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
 
     $data = fetch_klines(SYMBOL, $interval, $limit);
-    $time = array_column($data, 'time');
-    $open = array_column($data, 'open');
-    $high = array_column($data, 'high');
-    $low  = array_column($data, 'low');
-    $close= array_column($data, 'close');
-    $vol  = array_column($data, 'volume');
+    $time = array_column($data,'time');
+    $close = array_column($data,'close');
+    $sma20 = sma($close,20);
 
-    // المؤشرات الأساسية
-    $sma20 = sma($close, 20);
-    $sma50 = sma($close, 50);
-    $sma200= sma($close, 200);
-
-    [$macdLine, $signalLine, $macdHist] = macd($close, 12, 26, 9);
-    $rsi14 = rsi($close, 14);
-
-    // ... [باقي التحليل وملخص الطباعة كما في النسخة السابقة] ...
-
-    // إنشاء رسوم بيانية
-    ensure_dir(__DIR__ . '/output');
-    $chartPath = __DIR__ . "/output/btc_chart_{$interval}.png";
-    plot_chart($time, $close, $sma20, $sma50, $sma200, $rsi14, $macdLine, $signalLine, $macdHist, $chartPath);
-    echo "\nتم إنشاء الرسم البياني (سعر + RSI + MACD): $chartPath\n";
-
-} catch (Throwable $e) {
-    fwrite(STDERR, "خطأ: " . $e->getMessage() . "\n");
-    exit(1);
+} catch(Throwable $e) {
+    die("خطأ: " . $e->getMessage());
 }
+?>
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Bitcoin Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body { background: #f4f6f9; }
+.card { margin-bottom: 20px; }
+.chart-container { height: 400px; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container mt-4">
+<h1 class="mb-4 text-center">Bitcoin Dashboard</h1>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5>سعر BTC اليوم</h5>
+            <p class="display-6"><?= end($close); ?> USD</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5>متوسط 20 يوم</h5>
+            <p class="display-6"><?= end($sma20); ?> USD</p>
+        </div>
+    </div>
+</div>
+<div class="card p-3 chart-container">
+    <canvas id="btcChart"></canvas>
+</div>
+</div>
+<script>
+const ctx = document.getElementById('btcChart').getContext('2d');
+const btcChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: <?= json_encode($time); ?>,
+        datasets: [
+            { label: 'Close', data: <?= json_encode($close); ?>, borderColor: 'black', fill: false },
+            { label: 'SMA 20', data: <?= json_encode($sma20); ?>, borderColor: 'blue', fill: false }
+        ]
+    },
+    options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'top' } },
+        scales: { x: { display: true, title: { display: true, text: 'التاريخ' } }, y: { display: true, title: { display: true, text: 'السعر USD' } } }
+    }
+});
+</script>
+</body>
+</html>
