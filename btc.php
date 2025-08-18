@@ -124,8 +124,9 @@ canvas#btcChart { width: 100% !important; height: 400px !important; }
 const ctx=document.getElementById('btcChart').getContext('2d');
 const btcChart=new Chart(ctx,{type:'line',data:{labels:<?= json_encode($time) ?>,datasets:[{label:'Close',data:<?= json_encode($close) ?>,borderColor:'#e67e22',fill:false,tension:0.2,pointRadius:3,pointBackgroundColor:'#e67e22'},{label:'SMA 20',data:<?= json_encode($sma20) ?>,borderColor:'#00b894',fill:false,tension:0.2,pointRadius:0},{label:'SMA 50',data:<?= json_encode($sma50) ?>,borderColor:'#6c5ce7',fill:false,tension:0.2,pointRadius:0},{label:'SMA 200',data:<?= json_encode($sma200) ?>,borderColor:'#e84393',borderWidth:3,fill:false,tension:0.2,pointRadius:0},{label:'Volume',data:<?= json_encode($volume) ?>,borderColor:'#3498db',fill:true,backgroundColor:'rgba(52,152,219,0.25)',yAxisID:'y1'}]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:10,font:{size:12}}}},scales:{x:{display:true,title:{display:true,text:'التاريخ',font:{size:12}}},y:{display:true,title:{display:true,text:'السعر USD',font:{size:12}}},y1:{display:true,position:'right',title:{display:true,text:'Volume',font:{size:12}}}},animation:{duration:800,easing:'easeInOutCubic'},elements:{line:{borderWidth:2}},hover:{mode:'nearest',intersect:true}}});
 setInterval(()=>{location.reload();},60000);
+setInterval(()=>{location.reload();},60000);
 </script>
 </body>
 </html>
 
-    
+
