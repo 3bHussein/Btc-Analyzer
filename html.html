@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>خطة الهجرة + خطة دراسة ASP.NET Core</title>
+  <style>
+    :root{
+      --brand:#4F81BD; --bg:#f4f6f9; --ok:#2ecc71; --muted:#6b7280;
+      --card:#ffffff; --border:#d1d5db;
+    }
+    body{font-family:Arial,'Cairo',sans-serif;background:var(--bg);margin:24px;color:#111827}
+    h1{margin:16px 0 6px;text-align:center;color:#2c3e50}
+    h2{margin:18px 0 8px;color:#1f2937;text-align:center}
+    .sub{margin:0 0 18px;text-align:center;color:var(--muted);font-size:14px}
+    .wrap{max-width:1100px;margin:0 auto}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.04);padding:18px;margin:14px 0}
+
+    /* Controls + progress */
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center}
+    .controls label{font-size:14px;color:#374151}
+    .controls input[type="date"]{padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff}
+    .bar-wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+    .bar{position:relative;width:100%;height:14px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+    .bar > span{position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#34d399);transition:width .25s ease}
+    .pct{min-width:70px;text-align:center;font-weight:700;color:#1f2937}
+    .slider{width:100%}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:#374151}
+    .pill{padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:#fff}
+    .pill b{color:#111827}
+    .hint{font-size:13px;color:#4b5563;margin-top:4px}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse;margin:14px 0;border:1px solid var(--border);overflow:hidden;border-radius:12px}
+    th,td{border:1px solid var(--border);padding:10px;text-align:center}
+    th{background:var(--brand);color:#fff;font-weight:700}
+    .row1{background:#E8F4FA}  .row2{background:#EAF7E1}  .row3{background:#FFF4E5}
+    .row4{background:#FDEBF0}  .row5{background:#F3E8FD}  .row6{background:#F5F5F5}
+    .row7{background:#FFEFD5}  .row8{background:#E0FFFF}  .row9{background:#F0FFF0}
+
+    /* Completion state */
+    .done{position:relative;opacity:.9}
+    .done td{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:rgba(46,204,113,.9)}
+    .done td:last-child{opacity:1;text-decoration:none}
+    .badge-done{display:inline-block;background:var(--ok);color:#fff;padding:2px 8px;border-radius:999px;font-size:12px;margin-inline-start:6px}
+
+    /* English block LTR */
+    .ltr{direction:ltr}
+    .mini{font-size:12px;color:#6b7280}
+    .section-title{margin-top:26px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ===== Migration Timeline (Interactive) ===== -->
+    <h1>خطة زمنية للهجرة إلى أستراليا (24 شهر)</h1>
+    <p class="sub">اختر <b>تاريخ البدء</b> وسيُحسَب تلقائيًا الشهر الذي وصلت له من أصل 24 شهرًا.</p>
+
+    <div class="card">
+      <div class="controls">
+        <label>
+          تاريخ البدء:
+          <input id="startDate" type="date" />
+        </label>
+        <div>
+          <div class="mini">الأشهر المنقضية: <b id="monthsOut">0</b> / 24</div>
+          <input id="monthSlider" class="slider" type="range" min="0" max="24" step="1" value="0"
+                 oninput="updateProgress(this.value,true)" />
+        </div>
+      </div>
+
+      <div class="bar-wrap" style="margin-top:4px">
+        <div class="pct" id="pctLabel">0%</div>
+        <div class="bar" aria-label="progress bar">
+          <span id="barFill"></span>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span class="pill"><b>0</b> بدء الخطة</span>
+        <span class="pill"><b>3</b> نهاية التحضير</span>
+        <span class="pill"><b>7</b> نهاية التقييم المهني</span>
+        <span class="pill"><b>8</b> نهاية اختبار اللغة</span>
+        <span class="pill"><b>10</b> تقديم EOI</span>
+        <span class="pill"><b>20</b> نهاية انتظار قرار التأشيرة</span>
+        <span class="pill"><b>24</b> جاهز للسفر ✈️</span>
+      </div>
+      <div class="hint">يمكنك تحريك المزلاق يدويًا، أو تغييره تلقائيًا عبر اختيار تاريخ البدء.</div>
+    </div>
+
+    <!-- Arabic table -->
+    <div class="card">
+      <table id="tableAr" aria-label="الخطة بالعربي">
+        <thead>
+          <tr>
+            <th>المرحلة</th>
+            <th>الفترة الزمنية</th>
+            <th>المهام الرئيسية</th>
+            <th>ملاحظات شخصية</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row1" data-end="3">
+            <td>التحضير <span class="badge-done" style="display:none">اكتملت</span></td>
+            <td>الأشهر 1–3</td>
+            <td>مراجعة متطلبات الفيزا، تجهيز أوراق البكالوريوس والخبرة، التحضير لاختبار اللغة</td>
+            <td></td>
+          </tr>
+          <tr class="row2" data-end="7">
+            <td>التقييم المهني (ACS) <span class="badge-done" style="display:none">اكتملت</span></td>
+            <td>الأشهر 4–7</td>
+            <td>تقديم أوراقك لـ ACS، تجهيز مستندات مترجمة ومصدقة، انتظار النتيجة</td>
+            <td></td>
+          </tr>
+          <tr class="row3" data-end="8">
+            <td>اختبار اللغة الإنجليزية <span class="badge-done" style="display:none">اكتملت</span></td>
+            <td>الأشهر 4–8</td>
+            <td>تقديم IELTS/PTE واستهداف Band 8، إعادة المحاولة إذا لزم الأمر</td>
+            <td></td>
+          </tr>
+          <tr class="row4" data-end="10">
+            <td>التقديم على EOI <span class="badge-done" style="display:none">اكتملت</span></td>
+            <td>الأشهر 9–10</td>
+            <td>تقديم EOI عبر SkillSelect بعد استلام تقرير ACS ونتيجة اللغة</td>
+            <td></td>
+          </tr>
+          <tr class="row5" data-end="20">
+            <td>طلب التأشيرة (Visa Application) <span class="badge-done" style="display:none">اكتملت</span></td>
+            <td>الأشهر 11–20</td>
+            <td>رفع جميع المستندات (شهادات، خبرة، لغة، فحص طبي، عدم محكومية)، الانتظار 8–12 شهر</td>
+            <td></td>
+          </tr>
+          <tr class="row6" data-end="24">
+            <td>الاستعداد للسفر <span class="badge-done" style="display:none">اكتملت</span></td>
+            <td>الأشهر 21–24</td>
+            <td>تجهيز مالي وسكني، إنهاء الالتزامات، تجهيز CV أسترالي، شراء التذاكر والتأمين</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- English table -->
+    <div class="card ltr">
+      <table id="tableEn" aria-label="English plan">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Timeline</th>
+            <th>Key Tasks</th>
+            <th>Personal Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row1" data-end="3">
+            <td>Preparation <span class="badge-done" style="display:none">Done</span></td>
+            <td>Months 1–3</td>
+            <td>Review visa requirements, prepare bachelor & work documents, start IELTS/PTE prep</td>
+            <td></td>
+          </tr>
+          <tr class="row2" data-end="7">
+            <td>Skills Assessment (ACS) <span class="badge-done" style="display:none">Done</span></td>
+            <td>Months 4–7</td>
+            <td>Submit documents to ACS, provide certified translations, wait for outcome</td>
+            <td></td>
+          </tr>
+          <tr class="row3" data-end="8">
+            <td>English Test <span class="badge-done" style="display:none">Done</span></td>
+            <td>Months 4–8 (parallel with ACS)</td>
+            <td>Take IELTS/PTE aiming for Band 8, retake if needed</td>
+            <td></td>
+          </tr>
+          <tr class="row4" data-end="10">
+            <td>EOI Submission <span class="badge-done" style="display:none">Done</span></td>
+            <td>Months 9–10</td>
+            <td>Submit EOI via SkillSelect after ACS + English results</td>
+            <td></td>
+          </tr>
+          <tr class="row5" data-end="20">
+            <td>Visa Application <span class="badge-done" style="display:none">Done</span></td>
+            <td>Months 11–20</td>
+            <td>Upload all documents (degree, work, English, health check, police check), wait 8–12 months</td>
+            <td></td>
+          </tr>
+          <tr class="row6" data-end="24">
+            <td>Travel Preparation <span class="badge-done" style="display:none">Done</span></td>
+            <td>Months 21–24</td>
+            <td>Financial & housing prep, finalize commitments, prepare Australian CV, book tickets & insurance</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== ASP.NET Core Study Roadmap ===== -->
+    <h2 class="section-title">📚 خطة دراسية لتعلم ASP.NET Core (9 شهور)</h2>
+    <div class="card">
+      <table aria-label="ASP.NET Core Roadmap">
+        <thead>
+          <tr>
+            <th>الشهر</th>
+            <th>الموضوع</th>
+            <th>الكورسات / المهام</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row1">
+            <td>1</td>
+            <td>أساسيات C# و OOP</td>
+            <td>• C# Fundamentals (Microsoft Learn)<br>• OOP & Design Patterns in C# (Udemy/Pluralsight)</td>
+          </tr>
+          <tr class="row2">
+            <td>2</td>
+            <td>ASP.NET Core Web API</td>
+            <td>• Building REST APIs with ASP.NET Core (Udemy)<br>• Auth (JWT), DI, Filters</td>
+          </tr>
+          <tr class="row3">
+            <td>3</td>
+            <td>ASP.NET Core MVC / Razor Pages</td>
+            <td>• ASP.NET Core MVC Complete Guide (Udemy)<br>• Identity, Tag Helpers, Views</td>
+          </tr>
+          <tr class="row4">
+            <td>4</td>
+            <td>Entity Framework Core + SQL</td>
+            <td>• EF Core In Depth (Udemy)<br>• SQL Server Basics (Udemy/Pluralsight)</td>
+          </tr>
+          <tr class="row5">
+            <td>5</td>
+            <td>DevOps & Cloud (Azure)</td>
+            <td>• Azure Fundamentals (AZ-900)<br>• Docker for .NET Developers<br>• CI/CD (GitHub Actions/Azure DevOps)</td>
+          </tr>
+          <tr class="row6">
+            <td>6</td>
+            <td>Azure Developer Associate</td>
+            <td>• AZ-204 Course (Udemy / A Cloud Guru)<br>• Deploying ASP.NET Core on Azure</td>
+          </tr>
+          <tr class="row7">
+            <td>7</td>
+            <td>Security & System Design</td>
+            <td>• Secure Coding in ASP.NET Core (Pluralsight)<br>• OWASP Top 10<br>• System Design Basics</td>
+          </tr>
+          <tr class="row8">
+            <td>8</td>
+            <td>Testing & Quality</td>
+            <td>• Unit Testing (xUnit/NUnit)<br>• Integration Testing for ASP.NET Core APIs<br>• Continuous Testing in CI/CD</td>
+          </tr>
+          <tr class="row9">
+            <td>9</td>
+            <td>Agile & Interview Prep</td>
+            <td>• Agile/Scrum Basics (Scrum.org/Udemy)<br>• LeetCode for C#/.NET<br>• Australian-style CV + LinkedIn</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    // Calculate full months between first day of start month and current month
+    function monthsBetween(start, end){
+      const s = new Date(start.getFullYear(), start.getMonth(), 1);
+      const e = new Date(end.getFullYear(), end.getMonth(), 1);
+      let months = (e.getFullYear() - s.getFullYear()) * 12 + (e.getMonth() - s.getMonth());
+      if(months < 0) months = 0;
+      if(months > 24) months = 24;
+      return months;
+    }
+
+    function updateProgress(month, fromSlider){
+      month = Math.max(0, Math.min(24, parseInt(month,10)||0));
+      const pct = Math.round((month/24)*100);
+      document.getElementById('barFill').style.width = pct + '%';
+      document.getElementById('pctLabel').textContent = pct + '%';
+      document.getElementById('monthsOut').textContent = month;
+      if(fromSlider !== true){ document.getElementById('monthSlider').value = month; }
+
+      function mark(tableId){
+        document.querySelectorAll('#'+tableId+' tbody tr').forEach(tr=>{
+          const end = parseInt(tr.getAttribute('data-end'),10)||0;
+          const badge = tr.querySelector('.badge-done');
+          if(month >= end){ tr.classList.add('done'); if(badge) badge.style.display='inline-block'; }
+          else { tr.classList.remove('done'); if(badge) badge.style.display='none'; }
+        });
+      }
+      mark('tableAr'); mark('tableEn');
+    }
+
+    (function init(){
+      const startInput = document.getElementById('startDate');
+      const today = new Date();
+      startInput.valueAsDate = today;         // default to today
+      updateProgress(0);                       // start at 0
+      startInput.addEventListener('change', ()=>{
+        const val = startInput.valueAsDate;
+        if(val){ updateProgress(monthsBetween(val, new Date()), false); }
+      });
+    })();
+  </script>
+</body>
+</html>
