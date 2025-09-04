@@ -2,137 +2,199 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>خطة الهجرة + ASP.NET Core + Points Calculator</title>
+  <title>الهجرة لأستراليا + خطة ASP.NET Core + Points Calculator</title>
   <style>
-    body{font-family:Arial,'Cairo',sans-serif;background:#f4f6f9;margin:24px;color:#111827}
-    h1,h2{color:#2c3e50;text-align:center}
-    .card{background:#fff;border:1px solid #d1d5db;border-radius:14px;padding:18px;margin:14px 0}
-    .btn{padding:6px 10px;border-radius:8px;cursor:pointer}
-    .note{background:#fff;border:1px solid #d1d5db;border-radius:6px;min-height:30px}
-    table{width:100%;border-collapse:collapse;margin:10px 0}
+    body{font-family:Arial,'Cairo',sans-serif;background:#f4f6f9;margin:20px;color:#111827}
+    h1,h2{color:#2c3e50;text-align:center;margin:20px 0}
+    .card{background:#fff;border:1px solid #d1d5db;border-radius:12px;padding:16px;margin:14px 0}
+    table{width:100%;border-collapse:collapse;margin:12px 0}
     th,td{border:1px solid #d1d5db;padding:8px;text-align:center}
     th{background:#4F81BD;color:#fff}
-    .section-title{margin-top:30px}
+    .note{background:#fff;min-height:30px;border:1px solid #d1d5db;border-radius:6px}
     .points-bar{position:relative;height:14px;background:#e5e7eb;border-radius:999px;overflow:hidden}
     .points-bar span{position:absolute;left:0;top:0;height:100%;width:0;transition:width .3s ease}
   </style>
 </head>
 <body>
-  <h1>خطة الهجرة + خطة الدراسة + حاسبة النقاط</h1>
 
-  <!-- ===== Points Calculator ===== -->
-  <h2 class="section-title">🧮 آلة حساب النقاط للهجرة الماهرة</h2>
-  <div class="card">
-    <form id="pointsForm" oninput="calcPoints()">
-      <label>العمر:
-        <select id="age">
-          <option value="0">اختر</option>
-          <option value="30">25–32 (30)</option>
-          <option value="25">33–39 (25)</option>
-          <option value="15">40–44 (15)</option>
-        </select>
-      </label><br/><br/>
-      <label>اللغة الإنجليزية:
-        <select id="english">
-          <option value="0">اختر</option>
-          <option value="20">Superior (20)</option>
-          <option value="10">Proficient (10)</option>
-          <option value="0">Competent (0)</option>
-        </select>
-      </label><br/><br/>
-      <label>المؤهل:
-        <select id="degree">
-          <option value="0">اختر</option>
-          <option value="20">دكتوراه (20)</option>
-          <option value="15">ماجستير/بكالوريوس (15)</option>
-          <option value="10">دبلوم (10)</option>
-        </select>
-      </label><br/><br/>
-      <label>خبرة خارج أستراليا:
-        <select id="expOut">
-          <option value="0">0–2 (0)</option>
-          <option value="5">3–4 (5)</option>
-          <option value="10">5–7 (10)</option>
-          <option value="15">8+ (15)</option>
-        </select>
-      </label><br/><br/>
-      <label>خبرة داخل أستراليا:
-        <select id="expIn">
-          <option value="0">0</option>
-          <option value="5">1–2 (5)</option>
-          <option value="10">3–4 (10)</option>
-          <option value="15">5–7 (15)</option>
-          <option value="20">8+ (20)</option>
-        </select>
-      </label><br/><br/>
-      <label>ترشيح:
-        <select id="state">
-          <option value="0">لا</option>
-          <option value="5">190 (+5)</option>
-          <option value="15">491 (+15)</option>
-        </select>
-      </label><br/><br/>
-      <label>🎯 الهدف:
-        <input id="targetPoints" type="number" value="80" min="65" max="100" style="width:70px">
-      </label>
-    </form>
+<h1>🇦🇺 خطة الهجرة + خطة الدراسة + حاسبة النقاط</h1>
 
-    <h3>إجمالي: <span id="pointsTotal">0</span> نقطة</h3>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div id="pointsBadge" style="min-width:90px;text-align:center;font-weight:bold;background:#eee;padding:4px 8px;border-radius:999px">Low</div>
-      <div class="points-bar"><span id="pointsFill"></span></div>
-    </div>
-    <div id="pointsMsg" style="margin-top:8px;font-weight:bold"></div>
-    <div style="margin-top:10px">
-      <b>الفجوة:</b> <span id="pointsGap">0</span> نقطة
-      <div><b>اقتراحات:</b><ul id="improvementList"></ul></div>
-      <div><b>الخطة A:</b><ul id="planList"></ul></div>
-    </div>
+<!-- ===== خطة الهجرة (24 شهر) ===== -->
+<h2>⏳ خطة زمنية للهجرة إلى أستراليا (24 شهر)</h2>
+<div class="card">
+  <label>تاريخ البدء:
+    <input id="startDate" type="date" />
+  </label>
+  <div>
+    تقدم: <span id="monthsOut">0</span>/24 شهر
+    <input id="monthSlider" type="range" min="0" max="24" step="1" value="0"
+           oninput="updateProgress(this.value,true)" />
   </div>
+  <div class="points-bar"><span id="barFill"></span></div>
+</div>
 
-  <script>
-    function setGauge(total){
-      const pct = Math.min(100,total);
-      const fill=document.getElementById('pointsFill');
-      const badge=document.getElementById('pointsBadge');
-      fill.style.width=pct+'%';
-      if(total<65){fill.style.background='#ef4444';badge.textContent='Low';}
-      else if(total<80){fill.style.background='#f59e0b';badge.textContent='Medium';}
-      else{fill.style.background='#10b981';badge.textContent='High';}
-    }
-    function buildImprovements(){
-      const eng=parseInt(english.value)||0,deg=parseInt(degree.value)||0;
-      const expOut=parseInt(expOutEl.value)||0,expIn=parseInt(expInEl.value)||0,state=parseInt(stateEl.value)||0;
-      const items=[];
-      if(eng<20) items.push({label:`رفع الإنجليزي (إلى Superior) +${20-eng}`,delta:20-eng});
-      if(state<15){if(state===0){items.push({label:`ترشيح 491 (+15)`,delta:15});items.push({label:`ترشيح 190 (+5)`,delta:5});}
-      else if(state===5){items.push({label:`التحويل من 190→491 (+10)`,delta:10});}}
-      if(expOut<15){items.push({label:`زيادة خبرة خارج أستراليا`,delta:15-expOut});}
-      if(expIn<20){items.push({label:`زيادة خبرة داخل أستراليا`,delta:20-expIn});}
-      if(deg<20){items.push({label:`ترقية مؤهل (مثلا ماجستير/دكتوراه)`,delta:20-deg});}
-      return items.sort((a,b)=>b.delta-a.delta);
-    }
-    function greedyPlan(gap,items){const chosen=[];let sum=0;
-      for(const it of items){if(sum>=gap)break;chosen.push(it);sum+=it.delta;}return {chosen,covered:sum};}
-    function calcPoints(){
-      const age=parseInt(ageEl.value)||0,eng=parseInt(english.value)||0,deg=parseInt(degree.value)||0;
-      const expOut=parseInt(expOutEl.value)||0,expIn=parseInt(expInEl.value)||0,state=parseInt(stateEl.value)||0;
-      const target=parseInt(targetPoints.value)||80;
-      const total=age+eng+deg+expOut+expIn+state;
-      pointsTotal.textContent=total;setGauge(total);
-      const gap=Math.max(0,target-total);pointsGap.textContent=gap;
-      if(total>=80)pointsMsg.textContent="✅ ممتاز: فرص الدعوة قوية.";
-      else if(total>=65)pointsMsg.textContent="🟡 مؤهل مبدئيًا (65+).";
-      else pointsMsg.textContent="🔴 أقل من 65.";
-      const items=buildImprovements();improvementList.innerHTML='';items.forEach(it=>{let li=document.createElement('li');li.textContent=it.label;improvementList.appendChild(li);});
-      const plan=greedyPlan(gap,items);planList.innerHTML='';if(gap===0){let li=document.createElement('li');li.textContent="لا تحتاج تحسين.";planList.appendChild(li);}
-      else plan.chosen.forEach(it=>{let li=document.createElement('li');li.textContent=it.label;planList.appendChild(li);});
-    }
-    const ageEl=age,english=document.getElementById('english'),degree=document.getElementById('degree');
-    const expOutEl=document.getElementById('expOut'),expInEl=document.getElementById('expIn'),stateEl=document.getElementById('state'),targetPoints=document.getElementById('targetPoints');
-    const pointsTotal=document.getElementById('pointsTotal'),pointsGap=document.getElementById('pointsGap'),pointsMsg=document.getElementById('pointsMsg'),pointsFill=document.getElementById('pointsFill'),pointsBadge=document.getElementById('pointsBadge');
-    const improvementList=document.getElementById('improvementList'),planList=document.getElementById('planList');
-    calcPoints();
-  </script>
+<div class="card">
+  <table id="tableAr" data-notekey="notes_mig_ar">
+    <thead><tr><th>المرحلة</th><th>الفترة</th><th>المهام</th><th>ملاحظات</th></tr></thead>
+    <tbody>
+      <tr data-end="3"><td>تحضير</td><td>1–3</td><td>مراجعة متطلبات وتجهيز أوراق</td><td class="note" contenteditable="true"></td></tr>
+      <tr data-end="7"><td>تقييم ACS</td><td>4–7</td><td>تقديم أوراقك وانتظار النتيجة</td><td class="note" contenteditable="true"></td></tr>
+      <tr data-end="8"><td>اختبار اللغة</td><td>4–8</td><td>IELTS/PTE Band 8</td><td class="note" contenteditable="true"></td></tr>
+      <tr data-end="10"><td>تقديم EOI</td><td>9–10</td><td>SkillSelect</td><td class="note" contenteditable="true"></td></tr>
+      <tr data-end="20"><td>التأشيرة</td><td>11–20</td><td>رفع مستندات + فحص طبي</td><td class="note" contenteditable="true"></td></tr>
+      <tr data-end="24"><td>السفر</td><td>21–24</td><td>تجهيز مالي وسكني + CV</td><td class="note" contenteditable="true"></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== أنواع الفيزا ===== -->
+<h2>🧭 أنواع الفيزا لأستراليا</h2>
+<div class="card">
+  <input id="visaSearch" type="text" placeholder="ابحث: 189, 190, 491..." oninput="filterVisas()" />
+  <details class="visa-item" open>
+    <summary>الهجرة الماهرة — 189 / 190 / 491</summary>
+    <ul>
+      <li>189: مستقلة (إقامة دائمة بدون ترشيح)</li>
+      <li>190: دائمة مع ترشيح ولاية (+5 نقاط)</li>
+      <li>491: مؤقتة 5 سنوات بالمناطق الإقليمية (+15 نقاط)</li>
+    </ul>
+  </details>
+  <details class="visa-item"><summary>برعاية صاحب العمل — 482 / 186</summary></details>
+  <details class="visa-item"><summary>مواهب وابتكار — 858</summary></details>
+  <details class="visa-item"><summary>دراسة — 500 & 485</summary></details>
+  <details class="visa-item"><summary>شريك — 309/100 و 820/801</summary></details>
+  <details class="visa-item"><summary>والدين — 103 / 143</summary></details>
+</div>
+
+<!-- ===== حاسبة النقاط ===== -->
+<h2>🧮 حاسبة النقاط للهجرة</h2>
+<div class="card">
+  <form id="pointsForm" oninput="calcPoints()">
+    <label>العمر:
+      <select id="age">
+        <option value="30">25–32 (30)</option>
+        <option value="25">33–39 (25)</option>
+        <option value="15">40–44 (15)</option>
+      </select>
+    </label><br/><br/>
+    <label>اللغة:
+      <select id="english">
+        <option value="20">Superior (20)</option>
+        <option value="10">Proficient (10)</option>
+        <option value="0">Competent (0)</option>
+      </select>
+    </label><br/><br/>
+    <label>المؤهل:
+      <select id="degree">
+        <option value="20">دكتوراه (20)</option>
+        <option value="15">بكالوريوس/ماجستير (15)</option>
+        <option value="10">دبلوم (10)</option>
+      </select>
+    </label><br/><br/>
+    <label>خبرة خارجية:
+      <select id="expOut">
+        <option value="0">0–2</option>
+        <option value="5">3–4</option>
+        <option value="10">5–7</option>
+        <option value="15">8+</option>
+      </select>
+    </label><br/><br/>
+    <label>خبرة داخل أستراليا:
+      <select id="expIn">
+        <option value="0">0</option>
+        <option value="5">1–2</option>
+        <option value="10">3–4</option>
+        <option value="15">5–7</option>
+        <option value="20">8+</option>
+      </select>
+    </label><br/><br/>
+    <label>NAATI CCL:
+      <select id="naati"><option value="0">لا</option><option value="5">نعم (+5)</option></select>
+    </label><br/><br/>
+    <label>Professional Year:
+      <select id="proYear"><option value="0">لا</option><option value="5">نعم (+5)</option></select>
+    </label><br/><br/>
+    <label>ترشيح:
+      <select id="state">
+        <option value="0">لا</option>
+        <option value="5">190 (+5)</option>
+        <option value="15">491 (+15)</option>
+      </select>
+    </label><br/><br/>
+    <label>🎯 الهدف:
+      <input id="targetPoints" type="number" value="80" min="65" max="100">
+    </label>
+  </form>
+
+  <h3>إجمالي: <span id="pointsTotal">0</span> نقطة</h3>
+  <div style="display:flex;gap:10px;align-items:center">
+    <div id="pointsBadge" style="background:#eee;padding:4px 10px;border-radius:999px">Low</div>
+    <div class="points-bar"><span id="pointsFill"></span></div>
+  </div>
+  <div id="pointsMsg"></div>
+  <div><b>الفجوة:</b> <span id="pointsGap">0</span></div>
+  <div><b>اقتراحات:</b><ul id="improvementList"></ul></div>
+  <div><b>الخطة A:</b><ul id="planList"></ul></div>
+</div>
+
+<!-- ===== خطة ASP.NET Core ===== -->
+<h2>📚 خطة ASP.NET Core (9 شهور)</h2>
+<div class="card">
+  <table id="roadmapAr" data-notekey="notes_roadmap_ar">
+    <thead><tr><th>الشهر</th><th>الموضوع</th><th>الكورسات</th><th>ملاحظات</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>C# & OOP</td><td>Microsoft Learn + Udemy</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>2</td><td>Web API</td><td>JWT, DI, REST</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>3</td><td>MVC / Razor</td><td>Identity, Views</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>4</td><td>EF Core + SQL</td><td>SQL Server Basics</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>5</td><td>Azure Basics</td><td>AZ-900, Docker</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>6</td><td>Azure Dev</td><td>AZ-204</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>7</td><td>Security</td><td>OWASP, Secure Coding</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>8</td><td>Testing</td><td>xUnit, Integration</td><td class="note" contenteditable="true"></td></tr>
+      <tr><td>9</td><td>Agile & Interview</td><td>Scrum, CV</td><td class="note" contenteditable="true"></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // Progress bar
+  function monthsBetween(start,end){return (end.getFullYear()-start.getFullYear())*12+(end.getMonth()-start.getMonth());}
+  function updateProgress(m,fromSlider){
+    const pct=Math.round((m/24)*100);barFill.style.width=pct+"%";
+    monthsOut.textContent=m;if(!fromSlider)monthSlider.value=m;
+  }
+  startDate.onchange=()=>{if(startDate.valueAsDate){updateProgress(Math.min(24,Math.max(0,monthsBetween(startDate.valueAsDate,new Date()))));}}
+  updateProgress(0);
+
+  // Visa search
+  function filterVisas(){const q=visaSearch.value.toLowerCase();document.querySelectorAll('.visa-item').forEach(d=>{d.style.display=(d.textContent.toLowerCase().includes(q))?'':'none';});}
+
+  // Points calc
+  function setGauge(t){const f=pointsFill,b=pointsBadge;f.style.width=Math.min(100,t)+'%';
+    if(t<65){f.style.background='#ef4444';b.textContent='Low';}
+    else if(t<80){f.style.background='#f59e0b';b.textContent='Medium';}
+    else{f.style.background='#10b981';b.textContent='High';}}
+  function buildImprovements(){
+    const eng=+english.value,deg=+degree.value,eo=+expOut.value,ei=+expIn.value,s=+state.value,na=+naati.value,py=+proYear.value;
+    const items=[];if(eng<20)items.push({label:`رفع الإنجليزي (+${20-eng})`,delta:20-eng});
+    if(s<15)items.push({label:`ترشيح ولاية/إقليم`,delta:15-s});
+    if(na<5)items.push({label:`NAATI CCL (+5)`,delta:5});
+    if(py<5)items.push({label:`Professional Year (+5)`,delta:5});
+    if(deg<20)items.push({label:`ترقية مؤهل (+${20-deg})`,delta:20-deg});
+    if(eo<15)items.push({label:`زيادة خبرة خارجية`,delta:15-eo});
+    if(ei<20)items.push({label:`زيادة خبرة داخلية`,delta:20-ei});
+    return items.sort((a,b)=>b.delta-a.delta);
+  }
+  function greedyPlan(gap,items){const chosen=[];let c=0;for(const it of items){if(c>=gap)break;chosen.push(it);c+=it.delta;}return {chosen,covered:c};}
+  function calcPoints(){
+    const total=+age.value+ +english.value+ +degree.value+ +expOut.value+ +expIn.value+ +state.value+ +naati.value+ +proYear.value;
+    pointsTotal.textContent=total;setGauge(total);
+    const target=+targetPoints.value;const gap=Math.max(0,target-total);pointsGap.textContent=gap;
+    pointsMsg.textContent=total>=80?"✅ ممتاز":total>=65?"🟡 مؤهل":"🔴 ضعيف";
+    const items=buildImprovements();improvementList.innerHTML='';items.forEach(it=>{let li=document.createElement('li');li.textContent=it.label;improvementList.appendChild(li);});
+    const plan=greedyPlan(gap,items);planList.innerHTML='';if(gap===0){let li=document.createElement('li');li.textContent="مكتمل";planList.appendChild(li);}else plan.chosen.forEach(it=>{let li=document.createElement('li');li.textContent=it.label;planList.appendChild(li);});
+  }
+  calcPoints();
+</script>
 </body>
 </html>
