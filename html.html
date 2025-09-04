@@ -2,192 +2,434 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>خطة الهجرة + خطة دراسة ASP.NET Core</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>خطة الهجرة + ASP.NET Core | نسخة محسّنة</title>
   <style>
     :root{
-      --brand:#4F81BD; --bg:#f4f6f9; --ok:#2ecc71; --muted:#6b7280;
-      --card:#ffffff; --border:#d1d5db;
+      --bg:#0b1220; --card:#0f172a; --muted:#8aa0bf; --text:#e5eefc; --brand:#6ea8fe;
+      --accent:#34d399; --border:#1e293b; --chip:#0b1b36; --warn:#f59e0b; --danger:#ef4444;
     }
-    body{font-family:Arial,'Cairo',sans-serif;background:var(--bg);margin:24px;color:#111827}
-    h1,h2{margin:16px 0 8px;text-align:center;color:#2c3e50}
-    .wrap{max-width:1100px;margin:0 auto}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.04);padding:18px;margin:14px 0}
-    .note{background:#fff;border:1px solid #e5e7eb;border-radius:8px;min-height:38px;outline:none;padding:8px}
-    .note:focus{box-shadow:0 0 0 3px rgba(79,129,189,.25)}
-    table{width:100%;border-collapse:collapse;margin:14px 0;border:1px solid var(--border);overflow:hidden;border-radius:12px}
-    th,td{border:1px solid var(--border);padding:10px;text-align:center;vertical-align:top}
-    th{background:var(--brand);color:#fff;font-weight:700}
-    .row1{background:#E8F4FA} .row2{background:#EAF7E1} .row3{background:#FFF4E5}
-    .row4{background:#FDEBF0} .row5{background:#F3E8FD} .row6{background:#F5F5F5}
-    .row7{background:#FFEFD5} .row8{background:#E0FFFF} .row9{background:#F0FFF0}
-    .done td{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:rgba(46,204,113,.9)}
-    .badge-done{display:inline-block;background:var(--ok);color:#fff;padding:2px 8px;border-radius:999px;font-size:12px;margin-inline-start:6px}
-    .ltr{direction:ltr}
-    /* Progress controls */
+    [data-theme="light"]{
+      --bg:#f6f8fc; --card:#ffffff; --muted:#56637a; --text:#0f172a; --brand:#2563eb;
+      --accent:#10b981; --border:#e5e7eb; --chip:#eef2ff; --warn:#d97706; --danger:#dc2626;
+    }
+    html,body{height:100%}
+    body{
+      font-family: ui-sans-serif, system-ui, "Cairo", Arial;
+      margin:0;background:linear-gradient(180deg,var(--bg),#0b1020 50%,var(--bg));
+      color:var(--text); -webkit-font-smoothing:antialiased; line-height:1.65;
+    }
+    /* Header */
+    .topbar{
+      position:sticky;top:0;z-index:50;backdrop-filter: blur(8px);
+      background:rgba(15,23,42,.7); border-bottom:1px solid var(--border);
+    }
+    .container{max-width:1100px;margin:0 auto;padding:16px}
+    .row{display:flex;align-items:center;gap:12px;justify-content:space-between}
+    .brand{font-weight:800;letter-spacing:.3px}
+    .nav{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--chip);color:var(--text);text-decoration:none;font-size:14px}
+    .theme{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;padding:6px 10px;cursor:pointer}
+    /* Cards & general */
+    .wrap{max-width:1100px;margin:20px auto;padding:0 16px}
+    .card{
+      background:radial-gradient(1200px 200px at 20% -10%, rgba(110,168,254,.10), transparent),
+                 radial-gradient(1200px 200px at 80% 110%, rgba(52,211,153,.10), transparent),
+                 var(--card);
+      border:1px solid var(--border); border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.15);
+      margin:14px 0;
+    }
+    h1,h2{margin:10px 0 8px}
+    h1{font-size:28px}
+    h2{font-size:22px; color:var(--brand)}
+    .sub{color:var(--muted); margin-top:-4px; margin-bottom:10px}
+    /* Controls & progress */
     .controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .controls input{padding:8px;border:1px solid var(--border);border-radius:8px}
-    .bar-wrap{display:flex;gap:10px;align-items:center;margin-top:8px}
-    .bar{position:relative;flex:1;height:14px;background:#e5e7eb;border-radius:999px;overflow:hidden}
-    .bar span{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#60a5fa,#34d399);width:0}
-    .pct{font-weight:700}
-    /* State links */
-    .states{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    @media(min-width:900px){.states{grid-template-columns:repeat(4,1fr)}}
-    .state{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff;text-align:center}
-    .state a{display:inline-block;margin-top:6px;padding:6px 10px;border:1px solid var(--brand);border-radius:10px;background:var(--brand);color:#fff;text-decoration:none}
-    /* Points calculator */
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
-    .fld{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
-    .fld label{display:block;font-size:13px;margin-bottom:6px}
-    .fld select{width:100%;padding:6px}
-    .sum{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-    .badge{border-radius:999px;padding:6px 10px;font-weight:700;color:#fff}
-    .ok{background:#16a34a}.warn{background:#f59e0b}.bad{background:#dc2626}
-    .brk{margin-top:10px;border-top:1px dashed #d1d5db;padding-top:10px;font-size:14px;line-height:1.7}
+    .controls input, select, .note{
+      background:transparent;border:1px solid var(--border);color:var(--text);
+      padding:10px;border-radius:10px;outline:none;
+    }
+    .controls input[type="date"]{background:var(--card)}
+    .bar-wrap{display:flex;gap:12px;align-items:center;margin-top:10px}
+    .bar{position:relative;flex:1;height:14px;background:#0d203e;border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+    .bar > span{position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--accent));transition:width .25s}
+    .pct{font-weight:800}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chip{background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:12px}
+    /* Tables */
+    table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    th,td{border:1px solid var(--border);padding:10px;text-align:center;vertical-align:top}
+    th{background:linear-gradient(180deg,rgba(37,99,235,.15),rgba(37,99,235,.05)); color:var(--text)}
+    .stripe tbody tr:nth-child(odd){background:rgba(255,255,255,.02)}
+    .badge{display:inline-block;background:var(--accent);color:#062014;padding:2px 8px;border-radius:999px;font-size:12px;margin-inline-start:6px}
+    .done td{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:rgba(16,185,129,.9)}
+    .note{min-height:40px}
+    /* Buttons */
+    .btn{display:inline-block;padding:8px 12px;border-radius:10px;border:1px solid var(--brand);color:var(--text);text-decoration:none;background:transparent}
+    .btn.primary{background:var(--brand);color:#fff}
+    .btn.danger{border-color:var(--danger);color:var(--danger);background:transparent}
+    .btn.danger:hover{background:var(--danger);color:#fff}
+    /* Grid Links */
+    .grid{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+    .stategrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media(min-width:900px){.stategrid{grid-template-columns:repeat(4,1fr)}}
+    .state{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+    /* Tips checklist */
+    .tips{display:grid;grid-template-columns:1fr;gap:8px}
+    .tip{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--card)}
+    .tip input{transform:scale(1.2);margin-top:3px}
+    .tip b{color:var(--brand)}
+    .flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    /* Back to top */
+    #topBtn{position:fixed;bottom:18px;left:18px;z-index:40;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;padding:10px 12px;cursor:pointer;opacity:.85}
   </style>
 </head>
-<body>
-<div class="wrap">
-
-  <h1>خطة زمنية للهجرة إلى أستراليا (24 شهر)</h1>
-  <div class="card">
-    <div class="controls">
-      <label>تاريخ البدء: <input id="startDate" type="date"></label>
-      <div>
-        <div>الأشهر المنقضية: <b id="monthsOut">0</b>/24</div>
-        <input id="monthSlider" type="range" min="0" max="24" value="0" oninput="updateProgress(this.value,true)">
+<body data-theme="dark">
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container">
+      <div class="row">
+        <div class="brand">خطة الهجرة + ASP.NET</div>
+        <nav class="nav">
+          <a class="pill" href="#timeline">الجدول الزمني</a>
+          <a class="pill" href="#study">خطة الدراسة</a>
+          <a class="pill" href="#visas">أنواع الفيز</a>
+          <a class="pill" href="#states">ترشيح الولايات</a>
+          <a class="pill" href="#points">حاسبة النقاط</a>
+          <a class="pill" href="#tips">نصائح مهمة</a>
+        </nav>
+        <button id="themeBtn" class="theme" type="button">☀️/🌙</button>
       </div>
     </div>
-    <div class="bar-wrap"><div class="pct" id="pctLabel">0%</div><div class="bar"><span id="barFill"></span></div></div>
-  </div>
+  </header>
 
-  <!-- Migration table (AR) -->
-  <div class="card"><table id="tableAr" data-notekey="notes_mig_ar">
-    <thead><tr><th>المرحلة</th><th>الفترة</th><th>المهام</th><th>ملاحظات</th></tr></thead>
-    <tbody>
-      <tr class="row1" data-end="3"><td>التحضير<span class="badge-done" style="display:none">✓</span></td><td>1–3</td><td>مراجعة متطلبات الفيزا وتحضير الأوراق</td><td class="note" contenteditable></td></tr>
-      <tr class="row2" data-end="7"><td>تقييم ACS<span class="badge-done" style="display:none">✓</span></td><td>4–7</td><td>تقديم أوراقك لـ ACS وانتظار النتيجة</td><td class="note" contenteditable></td></tr>
-      <tr class="row3" data-end="8"><td>اختبار اللغة<span class="badge-done" style="display:none">✓</span></td><td>4–8</td><td>IELTS/PTE Band 8</td><td class="note" contenteditable></td></tr>
-      <tr class="row4" data-end="10"><td>تقديم EOI<span class="badge-done" style="display:none">✓</span></td><td>9–10</td><td>تقديم EOI بعد نتائج ACS + اللغة</td><td class="note" contenteditable></td></tr>
-      <tr class="row5" data-end="20"><td>طلب الفيزا<span class="badge-done" style="display:none">✓</span></td><td>11–20</td><td>رفع كل المستندات وانتظار 8–12 شهر</td><td class="note" contenteditable></td></tr>
-      <tr class="row6" data-end="24"><td>الاستعداد للسفر<span class="badge-done" style="display:none">✓</span></td><td>21–24</td><td>تجهيز مالي وسكني + CV أسترالي</td><td class="note" contenteditable></td></tr>
-    </tbody></table></div>
+  <main class="wrap">
+    <!-- ===== Timeline ===== -->
+    <section id="timeline">
+      <h1>الخطة الزمنية للهجرة (24 شهر)</h1>
+      <p class="sub">اختر تاريخ البدء، وستظهر نسبة التقدم تلقائيًا. يمكنك تعديل المزلاق يدويًا.</p>
+      <div class="card">
+        <div class="controls">
+          <label>تاريخ البدء:
+            <input id="startDate" type="date">
+          </label>
+          <div>
+            <div>الأشهر المنقضية: <b id="monthsOut">0</b> / 24</div>
+            <input id="monthSlider" type="range" min="0" max="24" step="1" value="0" oninput="updateProgress(this.value,true)">
+          </div>
+        </div>
+        <div class="bar-wrap">
+          <div class="pct" id="pctLabel">0%</div>
+          <div class="bar"><span id="barFill"></span></div>
+        </div>
+        <div class="legend" style="margin-top:8px">
+          <span class="chip"><b>3</b> التحضير</span>
+          <span class="chip"><b>7</b> تقييم ACS</span>
+          <span class="chip"><b>8</b> اللغة</span>
+          <span class="chip"><b>10</b> EOI</span>
+          <span class="chip"><b>20</b> قرار الفيزا</span>
+          <span class="chip"><b>24</b> جاهز للسفر ✈️</span>
+        </div>
+      </div>
 
-  <!-- Study Roadmap (AR) -->
-  <h2>📚 خطة دراسة ASP.NET Core (9 شهور)</h2>
-  <div class="card"><table id="roadmapAr" data-notekey="notes_roadmap_ar">
-    <thead><tr><th>شهر</th><th>الموضوع</th><th>الكورسات</th><th>ملاحظات</th></tr></thead>
-    <tbody>
-      <tr class="row1"><td>1</td><td>C# وOOP</td><td>C# Fundamentals + Design Patterns</td><td class="note" contenteditable></td></tr>
-      <tr class="row2"><td>2</td><td>Web API</td><td>ASP.NET Core REST APIs + JWT</td><td class="note" contenteditable></td></tr>
-      <tr class="row3"><td>3</td><td>MVC</td><td>ASP.NET Core MVC + Identity</td><td class="note" contenteditable></td></tr>
-      <tr class="row4"><td>4</td><td>EF Core + SQL</td><td>EF Core In Depth + SQL Server</td><td class="note" contenteditable></td></tr>
-      <tr class="row5"><td>5</td><td>Azure Basics</td><td>AZ-900 + Docker + CI/CD</td><td class="note" contenteditable></td></tr>
-      <tr class="row6"><td>6</td><td>Azure Developer</td><td>AZ-204 + نشر على Azure</td><td class="note" contenteditable></td></tr>
-      <tr class="row7"><td>7</td><td>Security + Design</td><td>OWASP + Secure Coding</td><td class="note" contenteditable></td></tr>
-      <tr class="row8"><td>8</td><td>Testing</td><td>xUnit/NUnit + Integration Tests</td><td class="note" contenteditable></td></tr>
-      <tr class="row9"><td>9</td><td>Agile + مقابلات</td><td>Scrum + LeetCode + CV</td><td class="note" contenteditable></td></tr>
-    </tbody></table></div>
+      <div class="card">
+        <table id="tableAr" class="stripe" data-notekey="notes_mig_ar">
+          <thead><tr><th>المرحلة</th><th>الفترة</th><th>المهام</th><th>ملاحظات</th></tr></thead>
+          <tbody>
+            <tr data-end="3"><td>التحضير <span class="badge" style="display:none">اكتملت</span></td><td>1–3</td><td>متطلبات الفيزا، تجهيز الشهادات والخبرة، خطة اللغة</td><td class="note" contenteditable></td></tr>
+            <tr data-end="7"><td>تقييم ACS <span class="badge" style="display:none">اكتملت</span></td><td>4–7</td><td>تقديم ملف التقييم، ترجمات وتصديقات</td><td class="note" contenteditable></td></tr>
+            <tr data-end="8"><td>اختبار اللغة <span class="badge" style="display:none">اكتملت</span></td><td>4–8</td><td>IELTS/PTE (استهدف Superior)</td><td class="note" contenteditable></td></tr>
+            <tr data-end="10"><td>تقديم EOI <span class="badge" style="display:none">اكتملت</span></td><td>9–10</td><td>تعبئة EOI بعد ACS + اللغة</td><td class="note" contenteditable></td></tr>
+            <tr data-end="20"><td>طلب الفيزا <span class="badge" style="display:none">اكتملت</span></td><td>11–20</td><td>رفع المستندات، فحص طبي، عدم محكومية</td><td class="note" contenteditable></td></tr>
+            <tr data-end="24"><td>الاستعداد للسفر <span class="badge" style="display:none">اكتملت</span></td><td>21–24</td><td>تجهيز مالي وسكني + CV أسترالي</td><td class="note" contenteditable></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <!-- Visa Types -->
-  <h2>🧭 أنواع الهجرة لأستراليا</h2>
-  <div class="card">
-    <ul>
-      <li><b>الهجرة المهارية:</b> 189 مستقل، 190 برعاية ولاية، 491 إقليمي → 191 دائم.</li>
-      <li><b>الكفالة الوظيفية:</b> SID 482 (جديد)، 186 ENS، 494 إقليمي → 191.</li>
-      <li><b>العائلة:</b> شريك 820/801 أو 309/100، خطوبة 300، والدين 143/173/103/804.</li>
-      <li><b>الدراسة:</b> 500، خريجين 485 (مع تغييرات 2024–2025).</li>
-      <li><b>المواهب:</b> 858 National Innovation (بديل Global Talent).</li>
-      <li><b>عطلة العمل:</b> 417/462 للشباب (18–30/35).</li>
-      <li><b>إنساني/لجوء:</b> برنامج منفصل.</li>
-    </ul>
-  </div>
+    <!-- ===== Study Roadmap ===== -->
+    <section id="study">
+      <h2>📚 خطة دراسة ASP.NET Core (9 شهور)</h2>
+      <div class="card">
+        <table id="roadmapAr" class="stripe" data-notekey="notes_roadmap_ar">
+          <thead><tr><th>الشهر</th><th>الموضوع</th><th>المهام/الكورسات</th><th>ملاحظات</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>C# + OOP</td><td>أساسيات C#، SOLID، Patterns</td><td class="note" contenteditable></td></tr>
+            <tr><td>2</td><td>Web API</td><td>ASP.NET Core REST + JWT + DI</td><td class="note" contenteditable></td></tr>
+            <tr><td>3</td><td>MVC/Razor</td><td>Identity، Views، Tag Helpers</td><td class="note" contenteditable></td></tr>
+            <tr><td>4</td><td>EF Core + SQL</td><td>Code First، LINQ، Migrations</td><td class="note" contenteditable></td></tr>
+            <tr><td>5</td><td>DevOps/Cloud</td><td>Docker، GitHub Actions/Azure DevOps</td><td class="note" contenteditable></td></tr>
+            <tr><td>6</td><td>Azure</td><td>AZ-900 ثم AZ-204 + نشر</td><td class="note" contenteditable></td></tr>
+            <tr><td>7</td><td>Security</td><td>OWASP Top10، Secure Coding</td><td class="note" contenteditable></td></tr>
+            <tr><td>8</td><td>Testing</td><td>xUnit/NUnit + Integration</td><td class="note" contenteditable></td></tr>
+            <tr><td>9</td><td>Interview</td><td>System Design + CV أسترالي</td><td class="note" contenteditable></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <!-- State links -->
-  <h2>🏛️ روابط ترشيح الولايات</h2>
-  <div class="card states">
-    <div class="state"><b>NSW</b><a target="_blank" href="https://www.nsw.gov.au/visas-and-migration/skilled-visas">فتح</a></div>
-    <div class="state"><b>VIC</b><a target="_blank" href="https://liveinmelbourne.vic.gov.au/migrate">فتح</a></div>
-    <div class="state"><b>QLD</b><a target="_blank" href="https://migration.qld.gov.au/">فتح</a></div>
-    <div class="state"><b>SA</b><a target="_blank" href="https://migration.sa.gov.au/">فتح</a></div>
-    <div class="state"><b>WA</b><a target="_blank" href="https://migration.wa.gov.au/">فتح</a></div>
-    <div class="state"><b>TAS</b><a target="_blank" href="https://www.migration.tas.gov.au/">فتح</a></div>
-    <div class="state"><b>ACT</b><a target="_blank" href="https://www.act.gov.au/migration">فتح</a></div>
-    <div class="state"><b>NT</b><a target="_blank" href="https://theterritory.com.au/work/migration-nt">فتح</a></div>
-  </div>
+    <!-- ===== Visa Types (summary) ===== -->
+    <section id="visas">
+      <h2>🧭 أنواع الهجرة (مختصر)</h2>
+      <div class="card grid">
+        <div>
+          <ul>
+            <li><b>مهارية:</b> 189 (مستقل)، 190 (ولاية)، 491 (إقليمي) → 191 (دائم).</li>
+            <li><b>كفالة وظيفية:</b> SID 482 (جديد)، 186 ENS، 494 → 191.</li>
+            <li><b>عائلة:</b> شريك 820/801 أو 309/100، خطوبة 300، والدين 143/173/103/804.</li>
+          </ul>
+        </div>
+        <div>
+          <ul>
+            <li><b>دراسة/خريجين:</b> 500، 485 (تغييرات 2024–2025).</li>
+            <li><b>مواهب:</b> 858 National Innovation.</li>
+            <li><b>عطلة عمل:</b> 417/462 حسب الجنسية والعمر.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
-  <!-- Points Calculator -->
-  <h2>🧮 حاسبة النقاط</h2>
-  <div class="card" id="pointsCalc">
-    <div class="grid">
-      <div class="fld"><label>العمر</label>
-        <select id="age"><option value="30">25–32 (30)</option><option value="25">33–39 (25)</option><option value="15">40–44 (15)</option></select></div>
-      <div class="fld"><label>اللغة الإنجليزية</label>
-        <select id="eng"><option value="0">Competent</option><option value="10">Proficient (10)</option><option value="20">Superior (20)</option></select></div>
-      <div class="fld"><label>المؤهل الدراسي</label>
-        <select id="edu"><option value="20">دكتوراه</option><option value="15" selected>بكالوريوس/ماجستير</option></select></div>
-      <div class="fld"><label>خبرة خارج أستراليا</label>
-        <select id="oexp"><option value="0">0–2</option><option value="5">3–4</option><option value="10" selected>5–7</option><option value="15">8+</option></select></div>
-      <div class="fld"><label>ترشيح/رعاية</label>
-        <select id="nom"><option value="0">بدون</option><option value="5">190 (+5)</option><option value="15">491 (+15)</option></select></div>
-      <div class="fld"><label>الشريك</label>
-        <select id="partner"><option value="10">أعزب (+10)</option><option value="5">شريك بإنجليزي فقط (+5)</option><option value="0" selected>0</option></select></div>
-    </div>
-    <div class="sum">المجموع: <span id="totalPts" class="badge bad">0</span></div>
-    <div class="brk" id="breakdown"></div>
-  </div>
+    <!-- ===== State Nomination Links ===== -->
+    <section id="states">
+      <h2>🏛️ روابط ترشيح الولايات (190/491)</h2>
+      <div class="card">
+        <div class="stategrid">
+          <div class="state"><b>NSW</b><br><a class="btn primary" target="_blank" href="https://www.nsw.gov.au/visas-and-migration/skilled-visas">فتح</a></div>
+          <div class="state"><b>VIC</b><br><a class="btn primary" target="_blank" href="https://liveinmelbourne.vic.gov.au/migrate">فتح</a></div>
+          <div class="state"><b>QLD</b><br><a class="btn primary" target="_blank" href="https://migration.qld.gov.au/">فتح</a></div>
+          <div class="state"><b>SA</b><br><a class="btn primary" target="_blank" href="https://migration.sa.gov.au/">فتح</a></div>
+          <div class="state"><b>WA</b><br><a class="btn primary" target="_blank" href="https://migration.wa.gov.au/">فتح</a></div>
+          <div class="state"><b>TAS</b><br><a class="btn primary" target="_blank" href="https://www.migration.tas.gov.au/">فتح</a></div>
+          <div class="state"><b>ACT</b><br><a class="btn primary" target="_blank" href="https://www.act.gov.au/migration">فتح</a></div>
+          <div class="state"><b>NT</b><br><a class="btn primary" target="_blank" href="https://theterritory.com.au/work/migration-nt">فتح</a></div>
+        </div>
+        <p class="sub">تختلف شروط كل ولاية (قوائم المهن، الحد الأدنى للنقاط، الإقامة داخل الولاية، عروض العمل).</p>
+      </div>
+    </section>
 
-</div>
+    <!-- ===== Points Calculator (with AU experience & reset) ===== -->
+    <section id="points">
+      <h2>🧮 حاسبة النقاط</h2>
+      <div class="card" id="pointsCalc">
+        <div class="grid">
+          <div><label>العمر</label>
+            <select id="ageBand">
+              <option value="30">25–32 (30)</option><option value="25">33–39 (25)</option>
+              <option value="25a">18–24 (25)</option><option value="15">40–44 (15)</option><option value="0">45–49 (0)</option>
+            </select></div>
+          <div><label>اللغة الإنجليزية</label>
+            <select id="english"><option value="0">Competent</option><option value="10">Proficient (+10)</option><option value="20">Superior (+20)</option></select></div>
+          <div><label>المؤهل الدراسي</label>
+            <select id="education"><option value="20">دكتوراه (+20)</option><option value="15" selected>بكالوريوس/ماجستير (+15)</option><option value="10">دبلوم (+10)</option><option value="0">أقل (0)</option></select></div>
+          <div><label>خبرة خارج أستراليا</label>
+            <select id="overseasExp"><option value="0">0–2 (0)</option><option value="5">3–4 (+5)</option><option value="10" selected>5–7 (+10)</option><option value="15">8+ (+15)</option></select></div>
+          <div><label>خبرة داخل أستراليا</label>
+            <select id="australiaExp"><option value="0">أقل من سنة (0)</option><option value="5">1–2 (+5)</option><option value="10">3–4 (+10)</option><option value="15">5–7 (+15)</option><option value="20">8+ (+20)</option></select></div>
+          <div><label>ترشيح/رعاية</label>
+            <select id="nomination"><option value="0" selected>بدون</option><option value="5">190 (+5)</option><option value="15">491 (+15)</option></select></div>
+          <div><label>الشريك</label>
+            <select id="partner"><option value="10">أعزب/No partner (+10)</option><option value="10s">شريك ماهر (+10)</option><option value="5">شريك بإنجليزي Competent (+5)</option><option value="0" selected>0</option></select></div>
+          <div><label>اعتمادات إضافية</label>
+            <select id="extras" multiple size="4"><option value="5">NAATI CCL (+5)</option><option value="5a">دراسة إقليمية (+5)</option><option value="5b">سنة مهنية (+5)</option><option value="0">—</option></select></div>
+          <div style="grid-column:1/-1"><label>ملاحظاتك</label><div id="pointsNotes" class="note" contenteditable></div></div>
+        </div>
+        <div class="flex-between" style="margin-top:10px">
+          <div>المجموع الكلي: <span id="totalPts" class="badge" style="background:#334155;color:#fff">0</span></div>
+          <div class="actions">
+            <button id="resetPoints" class="btn danger" type="button">🔄 إعادة ضبط الحاسبة</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div id="breakdown">— التفاصيل ستظهر هنا —</div>
+        </div>
+      </div>
+    </section>
 
-<script>
-function monthsBetween(s,e){return (e.getFullYear()-s.getFullYear())*12+(e.getMonth()-s.getMonth());}
-function updateProgress(m,fromSlider){
-  m=Math.max(0,Math.min(24,parseInt(m)||0));
-  document.getElementById('barFill').style.width=(m/24*100)+'%';
-  document.getElementById('pctLabel').textContent=Math.round(m/24*100)+'%';
-  document.getElementById('monthsOut').textContent=m;
-  if(!fromSlider)document.getElementById('monthSlider').value=m;
-  document.querySelectorAll('#tableAr tbody tr').forEach(tr=>{
-    let end=parseInt(tr.dataset.end)||0;
-    let badge=tr.querySelector('.badge-done');
-    if(m>=end){tr.classList.add('done');badge.style.display='inline-block';}
-    else{tr.classList.remove('done');badge.style.display='none';}
-  });
-}
-document.getElementById('startDate').addEventListener('change',e=>{
-  updateProgress(monthsBetween(e.target.valueAsDate,new Date()),false);
-});
-updateProgress(0);
+    <!-- ===== Tips to Boost Chances ===== -->
+    <section id="tips">
+      <h2>🚀 نصائح مهمة لزيادة فرص الدعوة والقبول</h2>
+      <p class="sub">هذه القائمة مركّزة لمطور ASP.NET/.NET مع خبرة 5–8 سنوات وبكالوريوس.</p>
+      <div class="card">
+        <div class="tips" id="tipsList">
+          <label class="tip"><input type="checkbox" data-k="eng_sup"><div><b>ارفع مستوى اللغة إلى Superior</b><br>استهدف IELTS 8 أو PTE 79 للحصول على +20 نقطة بدل +10 (Proficient). هذا غالبًا أكبر مضاعِف للنقاط.</div></label>
+          <label class="tip"><input type="checkbox" data-k="state_strategy"><div><b>استراتيجية ترشيح ولاية (190/491)</b><br>اختر ولاية تتوافق قوائمها مع وظيفتك (Developer Programmer/Software Engineer) وتحقق من شروط الإقامة داخل الولاية أو عرض العمل.</div></label>
+          <label class="tip"><input type="checkbox" data-k="naati"><div><b>NAATI CCL</b><br>احصل على +5 نقاط بسرعة نسبيًا عبر اختبار لغة المجتمع (Arabic–English).</div></label>
+          <label class="tip"><input type="checkbox" data-k="py"><div><b>Professional Year (اختياري)</b><br>إن درست في أستراليا، برنامج PY لتخصصات IT يمنح +5 نقاط ويقوي السيرة.</div></label>
+          <label class="tip"><input type="checkbox" data-k="job_offer"><div><b>عروض عمل حقيقية</b><br>حسّن فرص الكفالة عبر تجهيز CV أسترالي مختصر (Bullet points، إنجازات رقمية)، ورسائل تغطية موجهة لكل وظيفة.</div></label>
+          <label class="tip"><input type="checkbox" data-k="tech_stack"><div><b>ملف تقني مطابق للسوق الأسترالي</b><br>.NET 8، ASP.NET Core Web API/MVC، EF Core، SQL Server/PostgreSQL، Docker، Azure (AZ-900/AZ-204)، CI/CD.</div></label>
+          <label class="tip"><input type="checkbox" data-k="portfolio"><div><b>بورتفوليو علني</b><br>مشروعين على الأقل: API نظيف + نشر على Azure مع README واضح واختبارات. أضف روابط GitHub وDemo في CV.</div></label>
+          <label class="tip"><input type="checkbox" data-k="eoi_refresh"><div><b>تحديث EOI دوريًا</b><br>عند تحسن النقاط (لغة/ولاية/NAATI)، حدّث EOI فورًا؛ بعض الجولات تستهدف درجات محددة.</div></label>
+          <label class="tip"><input type="checkbox" data-k="age_timing"><div><b>التحرك قبل 33</b><br>الفئة العمرية 25–32 تمنح 30 نقطة. بعد 33 تهبط إلى 25؛ خطط للغة/ACS مبكرًا.</div></label>
+          <label class="tip"><input type="checkbox" data-k="sid482"><div><b>بديل مسار النقاط: SID 482 → 186</b><br>لو نقاطك منخفضة، فكّر في كفالة وظيفية (SID 482) ثم ENS 186 لاحقًا للإقامة الدائمة.</div></label>
+          <label class="tip"><input type="checkbox" data-k="evidence"><div><b>توثيق خبرتك للـ ACS</b><br>وصف مهام مطابق لـ ANZSCO، كشوف رواتب/خطابات خبرة، وتواريخ متسقة. أي تناقض قد يقلل سنوات محسوبة.</div></label>
+        </div>
+        <div style="margin-top:10px">
+          <label>ملاحظاتي على خطة تعزيز الفرص</label>
+          <div id="tipsNotes" class="note" contenteditable></div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-// Notes persistence
-document.querySelectorAll('table[data-notekey]').forEach(tbl=>{
-  const key=tbl.dataset.notekey;
-  const saved=JSON.parse(localStorage.getItem(key)||'{}');
-  tbl.querySelectorAll('td.note').forEach((td,i)=>{
-    if(saved[i])td.innerHTML=saved[i];
-    td.addEventListener('input',()=>{
-      let obj={};tbl.querySelectorAll('td.note').forEach((t,j)=>{obj[j]=t.innerHTML});
-      localStorage.setItem(key,JSON.stringify(obj));
+  <button id="topBtn" title="أعلى">↑</button>
+
+  <script>
+    // ===== Theme toggle =====
+    (function(){
+      const btn=document.getElementById('themeBtn');
+      const key='site_theme';
+      const saved=localStorage.getItem(key);
+      if(saved){ document.body.setAttribute('data-theme', saved); }
+      btn.addEventListener('click',()=>{
+        const cur=document.body.getAttribute('data-theme')==='light'?'dark':'light';
+        document.body.setAttribute('data-theme', cur);
+        localStorage.setItem(key, cur);
+      });
+    })();
+
+    // ===== Progress bar =====
+    function monthsBetween(start, end){
+      const s = new Date(start.getFullYear(), start.getMonth(), 1);
+      const e = new Date(end.getFullYear(), end.getMonth(), 1);
+      let m = (e.getFullYear()-s.getFullYear())*12 + (e.getMonth()-s.getMonth());
+      if(m<0) m=0; if(m>24) m=24; return m;
+    }
+    function updateProgress(month, fromSlider){
+      month = Math.max(0, Math.min(24, parseInt(month,10)||0));
+      const pct = Math.round((month/24)*100);
+      document.getElementById('barFill').style.width = pct + '%';
+      document.getElementById('pctLabel').textContent = pct + '%';
+      document.getElementById('monthsOut').textContent = month;
+      if(fromSlider !== true){ document.getElementById('monthSlider').value = month; }
+      // mark rows
+      document.querySelectorAll('#tableAr tbody tr').forEach(tr=>{
+        const end = parseInt(tr.getAttribute('data-end'),10)||0;
+        const badge = tr.querySelector('.badge');
+        if(month>=end){ tr.classList.add('done'); if(badge) badge.style.display='inline-block'; }
+        else { tr.classList.remove('done'); if(badge) badge.style.display='none'; }
+      });
+    }
+    (function initTimeline(){
+      const startInput=document.getElementById('startDate');
+      startInput.valueAsDate = new Date();
+      updateProgress(0);
+      startInput.addEventListener('change', ()=>{
+        const v=startInput.valueAsDate; if(v){ updateProgress(monthsBetween(v, new Date()), false); }
+      });
+    })();
+
+    // ===== Notes persistence for tables =====
+    function loadNotes(table){
+      const key = table.dataset.notekey;
+      if(!key) return;
+      try{
+        const saved = JSON.parse(localStorage.getItem(key) || '{}');
+        table.querySelectorAll('tbody tr').forEach((tr,i)=>{
+          const noteCell = tr.querySelector('td.note');
+          if(noteCell && saved[i] !== undefined) noteCell.innerHTML = saved[i];
+        });
+      }catch(e){}
+    }
+    function bindNotes(table){
+      const key = table.dataset.notekey; if(!key) return;
+      table.querySelectorAll('tbody tr').forEach((tr,i)=>{
+        const noteCell = tr.querySelector('td.note'); if(!noteCell) return;
+        const save = ()=>{
+          let saved={}; try{ saved=JSON.parse(localStorage.getItem(key)||'{}'); }catch(e){}
+          saved[i] = noteCell.innerHTML; localStorage.setItem(key, JSON.stringify(saved));
+        };
+        noteCell.addEventListener('input', save); noteCell.addEventListener('blur', save);
+      });
+    }
+    ['tableAr','roadmapAr'].forEach(id=>{
+      const t=document.getElementById(id); if(t){ loadNotes(t); bindNotes(t); }
     });
-  });
-});
 
-// Points calculator
-(function(){
-  const els={age:age,eng:eng,edu:edu,oexp:oexp,nom:nom,partner:partner,total:totalPts,brk:breakdown};
-  function calc(){
-    let pts=parseInt(els.age.value)+parseInt(els.eng.value)+parseInt(els.edu.value)+parseInt(els.oexp.value)+parseInt(els.nom.value)+parseInt(els.partner.value);
-    els.total.textContent=pts;
-    els.total.className='badge '+(pts>=75?'ok':pts>=65?'warn':'bad');
-    els.brk.innerHTML="تفصيل النقاط: "+pts;
-  }
-  ['change','input'].forEach(ev=>{
-    age.addEventListener(ev,calc);eng.addEventListener(ev,calc);edu.addEventListener(ev,calc);
-    oexp.addEventListener(ev,calc);nom.addEventListener(ev,calc);partner.addEventListener(ev,calc);
-  });
-  calc();
-})();
-</script>
+    // ===== Points calculator (with AU experience + Reset) =====
+    (function pointsCalculatorV2(){
+      const lsKey = 'points_calc_values_v2';
+      const els = {
+        age: document.getElementById('ageBand'),
+        eng: document.getElementById('english'),
+        edu: document.getElementById('education'),
+        oexp: document.getElementById('overseasExp'),
+        aexp: document.getElementById('australiaExp'),
+        nom: document.getElementById('nomination'),
+        partner: document.getElementById('partner'),
+        extras: document.getElementById('extras'),
+        total: document.getElementById('totalPts'),
+        brk: document.getElementById('breakdown'),
+        notes: document.getElementById('pointsNotes'),
+        reset: document.getElementById('resetPoints')
+      };
+      function normalizeAge(v){ return v==='25a' ? 25 : (parseInt(v,10)||0); }
+      function partnerPts(v){ if(v==='10' || v==='10s') return 10; if(v==='5') return 5; return 0; }
+      function extrasPts(){ let pts=0, labels=[]; Array.from(els.extras.selectedOptions).forEach(o=>{ if(['5','5a','5b'].includes(o.value)){ pts+=5; labels.push(o.textContent.trim()); } }); return {pts, labels}; }
+      function calc(){
+        const agePts = normalizeAge(els.age.value), engPts = +els.eng.value||0, eduPts = +els.edu.value||0;
+        const oexpPts = +els.oexp.value||0, aexpPts = +els.aexp.value||0, nomPts = +els.nom.value||0;
+        const ptnPts = partnerPts(els.partner.value), ex = extrasPts();
+        const total = agePts+engPts+eduPts+oexpPts+aexpPts+nomPts+ptnPts+ex.pts;
+        els.total.textContent = total;
+        els.total.style.background = total>=75 ? 'var(--accent)' : total>=65 ? 'var(--warn)' : 'var(--danger)';
+        els.total.style.color = '#04140e';
+        els.brk.innerHTML ="" `
+          <div><b>العمر:</b> ${agePts}</div>
+          <div><b>الإنجليزية:</b> ${engPts}</div>
+          <div><b>التعليم:</b> ${eduPts}</div>
+          <div><b>خبرة خارج أستراليا:</b> ${oexpPts}</div>
+          <div><b>خبرة داخل أستراليا:</b> ${aexpPts}</div>
+          <div><b>ترشيح/رعاية:</b> ${nomPts}</div>
+          <div><b>الشريك/الأعزب:</b> ${ptnPts}</div>
+          <div><b>اعتمادات إضافية:</b> ${ex.pts} ${ex.labels.length?— <i>${ex.labels.join('، ')}</i>:''}</div>'';
+        const data = {
+          age: els.age.value, eng: els.eng.value, edu: els.edu.value,
+          oexp: els.oexp.value, aexp: els.aexp.value, nom: els.nom.value,
+          partner: els.partner.value, extras: Array.from(els.extras.selectedOptions).map(o=>o.value),
+          notes: els.notes.innerHTML
+        };
+        try{ localStorage.setItem(lsKey, JSON.stringify(data)); }catch(e){}
+      }
+      function setDefaults(){
+        els.age.value='30'; els.eng.value='10'; els.edu.value='15'; els.oexp.value='10'; els.aexp.value='0';
+        els.nom.value='0'; els.partner.value='0'; Array.from(els.extras.options).forEach(o=>o.selected=false); els.notes.innerHTML='';
+      }
+      (function loadSaved(){
+        try{
+          const d = JSON.parse(localStorage.getItem(lsKey)||'null');
+          if(d){
+            ['age','eng','edu','oexp','aexp','nom','partner'].forEach(k=>{ if(d[k]) els[k].value=d[k]; });
+            if(Array.isArray(d.extras)){ Array.from(els.extras.options).forEach(opt=> opt.selected = d.extras.includes(opt.value)); }
+            if(d.notes!==undefined) els.notes.innerHTML=d.notes;
+          }else setDefaults();
+        }catch(e){ setDefaults(); }
+      })();
+      ['change','input'].forEach(ev=>{
+        Object.values({a:els.age,b:els.eng,c:els.edu,d:els.oexp,e:els.aexp,f:els.nom,g:els.partner,h:els.extras}).forEach(el=>el.addEventListener(ev,calc));
+        els.notes.addEventListener('input',calc); els.notes.addEventListener('blur',calc);
+      });
+      if(els.reset){ els.reset.addEventListener('click',()=>{ localStorage.removeItem(lsKey); setDefaults(); calc(); }); }
+      calc();
+    })();
+
+    // ===== Tips checklist persistence =====
+    (function tipsPersist(){
+      const list=document.getElementById('tipsList'); const notes=document.getElementById('tipsNotes'); const key='tips_boost_v1';
+      try{
+        const saved=JSON.parse(localStorage.getItem(key)||'{}');
+        if(saved && saved.checks){ list.querySelectorAll('input[type="checkbox"]').forEach(cb=> cb.checked = !!saved.checks[cb.dataset.k]); }
+        if(saved && saved.notes!==undefined){ notes.innerHTML=saved.notes; }
+        function save(){ const data={checks:{}, notes:notes.innerHTML}; list.querySelectorAll('input[type="checkbox"]').forEach(cb=> data.checks[cb.dataset.k]=cb.checked); localStorage.setItem(key, JSON.stringify(data)); }
+        list.addEventListener('change', save); ['input','blur'].forEach(e=>notes.addEventListener(e, save));
+      }catch(e){}
+    })();
+
+    // ===== Back to top =====
+    (function(){
+      const btn=document.getElementById('topBtn');
+      btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+    })();
+  </script>
 </body>
 </html>
